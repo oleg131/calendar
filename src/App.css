@@ -31,3 +31,16 @@
     transform: rotate(360deg);
   }
 }
+
+.day-highlight {
+  background-color: #e6194B;
+  border-radius: 15px;
+}
+
+.dot {
+  height: 25px;
+  width: 25px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
+}
