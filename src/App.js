@@ -1,7 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, Fragment } from 'react';
 import './App.css';
 
 import moment from 'moment';
+
+function loadMarkedDays() {
+  return JSON.parse(localStorage.getItem('days')) || []
+}
+
+function saveMarkedDays(days) {
+  localStorage['days'] = JSON.stringify(days)
+}
 
 const chunk = (arr, size) =>
   Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
@@ -9,24 +17,14 @@ const chunk = (arr, size) =>
   );
 
 function App() {
-  const [markedDays, setMarkedDays] = useState(['2019-05-01'])
+  const [markedDays, setMarkedDays] = useState(loadMarkedDays())
 
   return (
     <div className="App">
-      <div className="container" style={{ maxWidth: "600px" }}>
+      <div className="container" style={{ maxWidth: "700px" }}>
         <Year yearDate="2019-01-01" markedDays={markedDays} setMarkedDays={setMarkedDays} />
       </div>
-
-      <ul class="list-group">
-  <li class="list-group-item">
-    <span class="dot"></span>
-    <span class="align-middle">Cras justo odio</span>
-  </li>
-  <li class="list-group-item">Dapibus ac facilisis in</li>
-  <li class="list-group-item">Morbi leo risus</li>
-  <li class="list-group-item">Porta ac consectetur ac</li>
-  <li class="list-group-item">Vestibulum at eros</li>
-</ul>
+     
     </div>
   )
 }
@@ -42,7 +40,7 @@ function Year({ yearDate, markedDays, setMarkedDays }) {
 
   var year = (
     chunk(months, 3).map((row, index) => {
-      return(
+      return (
         <div className="row" key={ index }>
           {
             row.map((element, index) => {
@@ -59,7 +57,10 @@ function Year({ yearDate, markedDays, setMarkedDays }) {
   )
 
   return (
-    year
+    <Fragment>
+      <h1>{ moment(yearDate).format('YYYY') }</h1> 
+      { year }
+    </Fragment>
   )
 }
 
@@ -77,6 +78,8 @@ function Month({ monthDate, markedDays, setMarkedDays }) {
       newMarkedDays.splice(newMarkedDays.indexOf(day), 1)
     }
     setMarkedDays(newMarkedDays)
+
+    saveMarkedDays(newMarkedDays);
 
   }
 
@@ -100,13 +103,15 @@ function Month({ monthDate, markedDays, setMarkedDays }) {
         <tr key={ index }>
           {
             row.map((day, index) => {
-              var className = 'day'
-              if (!!day && markedDays.includes(day.format('YYYY-MM-DD'))) {
-                className += ' day-highlight'
-              }
+              var className = (
+                !!day && markedDays.includes(day.format('YYYY-MM-DD'))
+                ? 'day day-highlight' : 'day' 
+              )
               return (!!day ?
-                <td className={ className } key={ index } onClick={ (e) => onClick(e, day) } style={{ cursor: 'pointer' }}>
-                  { day.date() }
+                <td className="day-box" key={ index } onClick={ (e) => onClick(e, day) }>
+                  <div className={ className } style={{ padding: "2px" }}>
+                    { day.date() }
+                  </div>
                 </td> :
                 <td className="day old" key={ index } />
               )
@@ -118,7 +123,7 @@ function Month({ monthDate, markedDays, setMarkedDays }) {
   )
   
   return (
-    <table className="month">
+    <table className="month mb-3">
       <thead>
         <tr>
           <th className="month-title" colSpan="7">

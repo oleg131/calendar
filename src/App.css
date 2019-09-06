@@ -32,7 +32,27 @@
   }
 }
 
+.month {
+  width: 100%;
+}
+
+.day-box {
+  /* display: flex; */
+  /* align-items: center; */
+  /* align-content: center; */
+  width: 14%;
+}
+
+.day {
+  width: 30px;
+  /* height: 30px; */
+  cursor: pointer;
+  margin: 0 auto;
+}
+
 .day-highlight {
+  /* width: 30px;
+  height: 30px; */
   background-color: #e6194B;
   border-radius: 15px;
 }
