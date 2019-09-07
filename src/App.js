@@ -2,6 +2,7 @@ import React, { useState, Fragment } from 'react';
 import './App.css';
 
 import moment from 'moment';
+import { type } from 'os';
 
 function loadMarkedDays() {
   return JSON.parse(localStorage.getItem('days')) || []
@@ -17,20 +18,33 @@ const chunk = (arr, size) =>
   );
 
 function App() {
+  const [currentYear, setCurrentYear] = useState(parseInt(moment().format('YYYY')))
   const [markedDays, setMarkedDays] = useState(loadMarkedDays())
 
   return (
     <div className="App">
       <div className="container" style={{ maxWidth: "700px" }}>
-        <Year yearDate="2019-01-01" markedDays={markedDays} setMarkedDays={setMarkedDays} />
+        <Year currentYear={currentYear} setCurrentYear={setCurrentYear}
+        markedDays={markedDays} setMarkedDays={setMarkedDays} />
       </div>
      
     </div>
   )
 }
 
-function Year({ yearDate, markedDays, setMarkedDays }) {
+function Year({ currentYear, setCurrentYear, markedDays, setMarkedDays }) {
+  const yearDate = `${currentYear}-01-01`
   const day = moment(yearDate);
+
+  function prevYear(e) {
+    e.preventDefault()
+    setCurrentYear(currentYear - 1)
+  }
+
+  function nextYear(e) {
+    e.preventDefault()
+    setCurrentYear(currentYear + 1)
+  }
 
   var months = [];
   for (var i = 0; i < 12; i++) {
@@ -58,7 +72,12 @@ function Year({ yearDate, markedDays, setMarkedDays }) {
 
   return (
     <Fragment>
-      <h1>{ moment(yearDate).format('YYYY') }</h1> 
+      <h1>
+        <button type="button" className="btn btn-link" onClick={prevYear}>←</button>
+        { moment(yearDate).format('YYYY') }
+        <button type="button" className="btn btn-link" onClick={nextYear}>→</button>
+      </h1> 
+      
       { year }
     </Fragment>
   )
