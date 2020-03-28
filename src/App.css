@@ -57,6 +57,11 @@
   border-radius: 15px;
 }
 
+.day-current {
+  border: 2px solid black;
+  border-radius: 15px;
+}
+
 .dot {
   height: 25px;
   width: 25px;
