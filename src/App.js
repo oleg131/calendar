@@ -1,8 +1,9 @@
-import React, { useState, Fragment } from 'react';
+import React, { useState, useRef, Fragment, useEffect } from 'react';
 import './App.css';
 
 import moment from 'moment';
-import { type } from 'os';
+
+const currentDay = moment().format('YYYY-MM-DD');
 
 function loadMarkedDays() {
   return JSON.parse(localStorage.getItem('days')) || []
@@ -27,7 +28,6 @@ function App() {
         <Year currentYear={currentYear} setCurrentYear={setCurrentYear}
         markedDays={markedDays} setMarkedDays={setMarkedDays} />
       </div>
-     
     </div>
   )
 }
@@ -60,7 +60,8 @@ function Year({ currentYear, setCurrentYear, markedDays, setMarkedDays }) {
             row.map((element, index) => {
               return (
                 <div className="col-sm-4" key={ index }>
-                  <Month monthDate={element} markedDays={markedDays} setMarkedDays={setMarkedDays} />
+                  <Month monthDate={element} markedDays={markedDays}
+                    setMarkedDays={setMarkedDays} />
                 </div>
               )
             })
@@ -73,11 +74,14 @@ function Year({ currentYear, setCurrentYear, markedDays, setMarkedDays }) {
   return (
     <Fragment>
       <h1>
-        <button type="button" className="btn btn-link" onClick={prevYear}>←</button>
+        <button type="button" className="btn btn-link" onClick={prevYear}>
+          ←
+        </button>
         { moment(yearDate).format('YYYY') }
-        <button type="button" className="btn btn-link" onClick={nextYear}>→</button>
-      </h1> 
-      
+        <button type="button" className="btn btn-link" onClick={nextYear}>
+          →
+        </button>
+      </h1>
       { year }
     </Fragment>
   )
@@ -92,7 +96,7 @@ function Month({ monthDate, markedDays, setMarkedDays }) {
     const newMarkedDays = [...markedDays]
 
     if (!markedDays.includes(day)) {
-      newMarkedDays.push(day)     
+      newMarkedDays.push(day)
     } else {
       newMarkedDays.splice(newMarkedDays.indexOf(day), 1)
     }
@@ -124,13 +128,16 @@ function Month({ monthDate, markedDays, setMarkedDays }) {
             row.map((day, index) => {
               var className = (
                 !!day && markedDays.includes(day.format('YYYY-MM-DD'))
-                ? 'day day-highlight' : 'day' 
+                ? 'day day-highlight' : 'day'
               )
+              if (day && day.format('YYYY-MM-DD') === currentDay) {
+                className += ' day-current'
+              }
+
               return (!!day ?
-                <td className="day-box" key={ index } onClick={ (e) => onClick(e, day) }>
-                  <div className={ className } style={{ padding: "2px" }}>
-                    { day.date() }
-                  </div>
+                <td className="day-box" key={ index }
+                  onClick={ (e) => onClick(e, day) }>
+                  <Day day={day} className={className} />
                 </td> :
                 <td className="day old" key={ index } />
               )
@@ -140,7 +147,7 @@ function Month({ monthDate, markedDays, setMarkedDays }) {
       )
     })
   )
-  
+
   return (
     <table className="month mb-3">
       <thead>
@@ -164,6 +171,22 @@ function Month({ monthDate, markedDays, setMarkedDays }) {
       </tbody>
     </table>
   );
+}
+
+function Day({ day, className }) {
+  const ref = useRef();
+
+  useEffect(() => {
+    if (day.format('YYYY-MM-DD') === currentDay) {
+      ref.current.scrollIntoView();
+    }
+  }, [day])
+
+  return (
+    <div className={ className } style={{ padding: "2px" }} ref={ref}>
+      { day.date() }
+    </div>
+  )
 }
 
 export default App;
