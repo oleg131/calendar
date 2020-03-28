@@ -2,7 +2,8 @@
 FROM node:12.2.0-alpine as build
 WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH
-COPY package-lock.json /app/package.json
+COPY package.json /app/package.json
+COPY package-lock.json /app/package-lock.json
 RUN npm install --ignore-scripts
 COPY . /app
 RUN NODE_ENV=development npm run build
