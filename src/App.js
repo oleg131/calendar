@@ -41,8 +41,10 @@ function App() {
     <div className="App">
       <div className="container">
         <Year
-          currentYear={currentYear} setCurrentYear={setCurrentYear}
-          markedDays={markedDays} setMarkedDays={setMarkedDays}
+          currentYear={currentYear}
+          setCurrentYear={setCurrentYear}
+          markedDays={markedDays}
+          setMarkedDays={setMarkedDays}
         />
       </div>
     </div>
@@ -61,18 +63,22 @@ function Year({ currentYear, setCurrentYear, markedDays, setMarkedDays }) {
   }
 
   const months = Array.from(Array(12).keys()).map(
-    i => addMonths(new Date(currentYear, 0, 1), i));
+    i => addMonths(new Date(currentYear, 0, 1), i)
+  );
 
   var year = (
     chunk(months, 3).map((row, index) => {
       return (
-        <div className="row" key={ index }>
+        <div className="row" key={index}>
           {
             row.map((element, index) => {
               return (
-                <div className="col-sm-4" key={ index }>
-                  <Month start={element} markedDays={markedDays}
-                    setMarkedDays={setMarkedDays} />
+                <div className="col-sm-4" key={index}>
+                  <Month
+                    start={element}
+                    markedDays={markedDays}
+                    setMarkedDays={setMarkedDays}
+                  />
                 </div>
               );
             })
@@ -88,12 +94,12 @@ function Year({ currentYear, setCurrentYear, markedDays, setMarkedDays }) {
         <button type="button" className="btn btn-link" onClick={prevYear}>
           ←
         </button>
-        { currentYear }
+        {currentYear}
         <button type="button" className="btn btn-link" onClick={nextYear}>
           →
         </button>
       </h1>
-      { year }
+      {year}
     </Fragment>
   );
 }
@@ -113,19 +119,19 @@ function Month({ start, markedDays, setMarkedDays }) {
   var month = (
     chunk(days, 7).map((row, index) => {
       return (
-        <tr key={ index }>
+        <tr key={index}>
           {
             row.map((day, index) => {
               return (
                 (
-                  !day ? <td className="day day-old" key={ index } /> :
-                  <td className="day-box" key={ index }>
-                    <Day
-                      day={day}
-                      markedDays={markedDays}
-                      setMarkedDays={setMarkedDays}
-                    />
-                  </td>
+                  !day ? <td className="day day-old" key={index} /> :
+                    <td className="day-box" key={index}>
+                      <Day
+                        day={day}
+                        markedDays={markedDays}
+                        setMarkedDays={setMarkedDays}
+                      />
+                    </td>
                 )
               );
             })
@@ -140,7 +146,7 @@ function Month({ start, markedDays, setMarkedDays }) {
       <thead>
         <tr>
           <th className="month-title" colSpan="7">
-            { format(start, 'MMMM') }
+            {format(start, 'MMMM')}
           </th>
         </tr>
         <tr>
@@ -154,7 +160,7 @@ function Month({ start, markedDays, setMarkedDays }) {
         </tr>
       </thead>
       <tbody>
-        { month }
+        {month}
       </tbody>
     </table>
   );
@@ -203,9 +209,9 @@ function Day({ day, markedDays, setMarkedDays }) {
   }
 
   return (
-    <div className={ className } ref={ref}
-    onClick={ (e) => onClick(e, day) }>
-      { getDate(day) }
+    <div className={className} ref={ref}
+      onClick={(e) => onClick(e, day)}>
+      {getDate(day)}
     </div>
   );
 }
