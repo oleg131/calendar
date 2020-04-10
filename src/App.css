@@ -2,34 +2,8 @@
   text-align: center;
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 40vmin;
-  pointer-events: none;
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.container {
+  max-width: 700px !important;
 }
 
 .month {
@@ -37,22 +11,17 @@
 }
 
 .day-box {
-  /* display: flex; */
-  /* align-items: center; */
-  /* align-content: center; */
   width: 14%;
 }
 
 .day {
   width: 30px;
-  /* height: 30px; */
   cursor: pointer;
   margin: 0 auto;
+  padding: 2px
 }
 
 .day-highlight {
-  /* width: 30px;
-  height: 30px; */
   background-color: #e6194B;
   border-radius: 15px;
 }
@@ -60,6 +29,10 @@
 .day-current {
   border: 2px solid black;
   border-radius: 15px;
+}
+
+.day-old {
+  cursor: default
 }
 
 .dot {

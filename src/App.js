@@ -1,16 +1,18 @@
 import React, { useState, useRef, Fragment, useEffect } from 'react';
 import './App.css';
 
-import moment from 'moment';
+import {
+  format, addDays, addMonths, isBefore, getDay, getDate
+} from 'date-fns';
 
-const currentDay = moment().format('YYYY-MM-DD');
-
-function loadMarkedDays() {
-  return JSON.parse(localStorage.getItem('days')) || []
+function getParam(name) {
+  const urlParams = new URLSearchParams(window.location.search);
+  const param = urlParams.get(name);
+  return param;
 }
 
-function saveMarkedDays(days) {
-  localStorage['days'] = JSON.stringify(days)
+function getCalendarName() {
+  return getParam('calendar') || getParam('c') || 'default';
 }
 
 const chunk = (arr, size) =>
@@ -18,39 +20,48 @@ const chunk = (arr, size) =>
     arr.slice(i * size, i * size + size)
   );
 
+const CURRENT_DAY = format(new Date(), 'yyyy-MM-dd');
+const CALENDAR = getCalendarName();
+
+function loadMarkedDays() {
+  return JSON.parse(localStorage.getItem(CALENDAR)) || [];
+}
+
+function saveMarkedDays(days) {
+  localStorage[CALENDAR] = JSON.stringify(days);
+}
+
 function App() {
-  const [currentYear, setCurrentYear] = useState(parseInt(moment().format('YYYY')))
-  const [markedDays, setMarkedDays] = useState(loadMarkedDays())
+  const year = parseInt(format(new Date(), 'yyyy'));
+
+  const [currentYear, setCurrentYear] = useState(year);
+  const [markedDays, setMarkedDays] = useState(loadMarkedDays());
 
   return (
     <div className="App">
-      <div className="container" style={{ maxWidth: "700px" }}>
-        <Year currentYear={currentYear} setCurrentYear={setCurrentYear}
-        markedDays={markedDays} setMarkedDays={setMarkedDays} />
+      <div className="container">
+        <Year
+          currentYear={currentYear} setCurrentYear={setCurrentYear}
+          markedDays={markedDays} setMarkedDays={setMarkedDays}
+        />
       </div>
     </div>
-  )
+  );
 }
 
 function Year({ currentYear, setCurrentYear, markedDays, setMarkedDays }) {
-  const yearDate = `${currentYear}-01-01`
-  const day = moment(yearDate);
-
   function prevYear(e) {
-    e.preventDefault()
-    setCurrentYear(currentYear - 1)
+    e.preventDefault();
+    setCurrentYear(currentYear - 1);
   }
 
   function nextYear(e) {
-    e.preventDefault()
-    setCurrentYear(currentYear + 1)
+    e.preventDefault();
+    setCurrentYear(currentYear + 1);
   }
 
-  var months = [];
-  for (var i = 0; i < 12; i++) {
-    months.push(moment(day))
-    day.add(1, 'months')
-  }
+  const months = Array.from(Array(12).keys()).map(
+    i => addMonths(new Date(currentYear, 0, 1), i));
 
   var year = (
     chunk(months, 3).map((row, index) => {
@@ -60,16 +71,16 @@ function Year({ currentYear, setCurrentYear, markedDays, setMarkedDays }) {
             row.map((element, index) => {
               return (
                 <div className="col-sm-4" key={ index }>
-                  <Month monthDate={element} markedDays={markedDays}
+                  <Month start={element} markedDays={markedDays}
                     setMarkedDays={setMarkedDays} />
                 </div>
-              )
+              );
             })
           }
         </div>
-      )
+      );
     })
-  )
+  );
 
   return (
     <Fragment>
@@ -77,46 +88,25 @@ function Year({ currentYear, setCurrentYear, markedDays, setMarkedDays }) {
         <button type="button" className="btn btn-link" onClick={prevYear}>
           ←
         </button>
-        { moment(yearDate).format('YYYY') }
+        { currentYear }
         <button type="button" className="btn btn-link" onClick={nextYear}>
           →
         </button>
       </h1>
       { year }
     </Fragment>
-  )
+  );
 }
 
-function Month({ monthDate, markedDays, setMarkedDays }) {
-  function onClick(e, day) {
-    e.preventDefault();
-
-    day = day.format('YYYY-MM-DD')
-
-    const newMarkedDays = [...markedDays]
-
-    if (!markedDays.includes(day)) {
-      newMarkedDays.push(day)
-    } else {
-      newMarkedDays.splice(newMarkedDays.indexOf(day), 1)
-    }
-    setMarkedDays(newMarkedDays)
-
-    saveMarkedDays(newMarkedDays);
-
+function Month({ start, markedDays, setMarkedDays }) {
+  const days = [];
+  for (var m = start; isBefore(m, addMonths(start, 1)); m = addDays(m, 1)) {
+    days.push(m);
   }
 
-  var a = moment(monthDate);
-  var b = moment(a).add(1, 'months');
-
-  var days = [];
-  for (var m = moment(a); m.isBefore(b); m.add(1, 'days')) {
-    days.push(moment(m))
-  }
-
-  var nBefore = days[0].weekday();
-  var nAfter = 6 - days[days.length - 1].weekday();
-
+  // Fill in weekdays from other months
+  var nBefore = getDay(days[0]);
+  var nAfter = getDay(6 - days[days.length - 1]);
   days.unshift(...[...Array(nBefore).keys()].map(() => null));
   days.push(...[...Array(nAfter).keys()].map(() => null));
 
@@ -126,34 +116,31 @@ function Month({ monthDate, markedDays, setMarkedDays }) {
         <tr key={ index }>
           {
             row.map((day, index) => {
-              var className = (
-                !!day && markedDays.includes(day.format('YYYY-MM-DD'))
-                ? 'day day-highlight' : 'day'
-              )
-              if (day && day.format('YYYY-MM-DD') === currentDay) {
-                className += ' day-current'
-              }
-
-              return (!!day ?
-                <td className="day-box" key={ index }
-                  onClick={ (e) => onClick(e, day) }>
-                  <Day day={day} className={className} />
-                </td> :
-                <td className="day old" key={ index } />
-              )
+              return (
+                (
+                  !day ? <td className="day day-old" key={ index } /> :
+                  <td className="day-box" key={ index }>
+                    <Day
+                      day={day}
+                      markedDays={markedDays}
+                      setMarkedDays={setMarkedDays}
+                    />
+                  </td>
+                )
+              );
             })
           }
         </tr>
-      )
+      );
     })
-  )
+  );
 
   return (
     <table className="month mb-3">
       <thead>
         <tr>
           <th className="month-title" colSpan="7">
-            { a.format('MMMM') }
+            { format(start, 'MMMM') }
           </th>
         </tr>
         <tr>
@@ -173,20 +160,54 @@ function Month({ monthDate, markedDays, setMarkedDays }) {
   );
 }
 
-function Day({ day, className }) {
+function Day({ day, markedDays, setMarkedDays }) {
   const ref = useRef();
 
+  const [className, setClassName] = useState('day');
+
   useEffect(() => {
-    if (day.format('YYYY-MM-DD') === currentDay) {
+    if (format(day, 'yyyy-MM-dd') === CURRENT_DAY) {
       ref.current.scrollIntoView();
     }
-  }, [day])
+  }, []);
+
+  useEffect(() => {
+    var className = 'day';
+
+    if (markedDays.includes(format(day, 'yyyy-MM-dd'))) {
+      className += ' day-highlight';
+    }
+
+    if (format(day, 'yyyy-MM-dd') === CURRENT_DAY) {
+      className += ' day-current';
+    }
+
+    setClassName(className);
+  }, [day]);
+
+  function onClick(e, day) {
+    e.preventDefault();
+
+    day = format(day, 'yyyy-MM-dd');
+
+    const newMarkedDays = markedDays.slice();
+
+    if (!markedDays.includes(day)) {
+      newMarkedDays.push(day);
+    } else {
+      newMarkedDays.splice(newMarkedDays.indexOf(day), 1);
+    }
+
+    setMarkedDays(newMarkedDays);
+    saveMarkedDays(newMarkedDays);
+  }
 
   return (
-    <div className={ className } style={{ padding: "2px" }} ref={ref}>
-      { day.date() }
+    <div className={ className } ref={ref}
+    onClick={ (e) => onClick(e, day) }>
+      { getDate(day) }
     </div>
-  )
+  );
 }
 
 export default App;
