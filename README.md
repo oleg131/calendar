@@ -2,7 +2,7 @@
 
 Simple calendar app to track day events (days you worked out, days you took your medicine etc.)
 
-Cclick on the day to mark or unmark it.
+Click on the day to mark or unmark it.
 
 Data is stored in `localStorage`.
 
