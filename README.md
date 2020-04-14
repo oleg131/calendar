@@ -1,5 +1,7 @@
 ![](./screenshot.png)
 
+# [Demo](https://calendar.orchardroad.space/)
+
 Simple calendar app to track day events (days you worked out, days you took your medicine etc.)
 
 Click on the day to mark or unmark it.
